@@ -1,0 +1,18 @@
+{
+  "name": "glassbox",
+  "version": "0.1.0",
+  "description": "See where your AI product is a black box to its users.",
+  "type": "module",
+  "bin": {
+    "glassbox": "glassbox.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "example": "node glassbox.js examples/unstoppable-chat && node glassbox.js examples/stoppable-chat"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "author": "MC Dean"
+}

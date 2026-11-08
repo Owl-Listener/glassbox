@@ -8,6 +8,31 @@ Each finding cites the research behind it and points to a fix.
 
 > 🚧 Early days, being built in public. See [CHECKS.md](CHECKS.md) for the eight checks planned for v0.1.
 
+## Try it
+
+Glassbox needs only Node 20+, with no dependencies to install.
+
+```bash
+node glassbox.js path/to/your/app
+```
+
+Or see a before and after on two tiny example chats:
+
+```bash
+npm run example
+```
+
+```
+■ stop · The user can stop the agent  [critical]
+  Score: 0/100
+  ✗ Responses stream, but nothing in the code can cancel them. Users are stuck
+    watching output they can already see going wrong (anti-pattern: "The unstoppable stream").
+```
+
+Add `--json` for machine-readable results an agent or CI job can use.
+
+**v0.1 status:** check 1 of 8 (`stop`) is built. See [CHECKS.md](CHECKS.md) for the rest.
+
 ## How it fits together
 
 | | |
