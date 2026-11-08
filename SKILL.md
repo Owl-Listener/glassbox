@@ -1,7 +1,7 @@
 ---
 name: glassbox
 version: 0.1.0
-description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, and does it ask before taking consequential actions like sending, paying, or deleting. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
+description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, and can they see what the agent did. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
 ---
 
 # Glassbox
@@ -47,8 +47,9 @@ The scan skips these folders, so Glassbox never reports its own example apps.
 |---|---|---|
 | `stop` | Can the user stop the agent mid-answer? | critical |
 | `gates` | Do consequential actions ask the user first? | critical |
+| `tools-visible` | Can the user see what the agent did: what it sent, what came back? | high |
 
-Six more checks are planned (see `CHECKS.md`). **Never imply the product
+Five more checks are planned (see `CHECKS.md`). **Never imply the product
 passes checks that haven't run.** Always say which areas weren't assessed.
 
 ## Instructions
@@ -93,12 +94,13 @@ Use this structure. Lead with what can hurt users. Keep it short.
 ```markdown
 ## Glassbox review: <project>
 
-**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, failure, refusal, sources, tool visibility, accessibility
+**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, failure, refusal, sources, accessibility
 
 | Check | Score | Verdict |
 |---|---|---|
 | stop: user can stop the agent | 0 | ✗ Responses stream with no way to cancel |
 | gates: risky actions ask first | 50 | ✗ refundOrder runs without approval |
+| tools-visible: user sees what it did | 50 | ✗ Tool calls shown without their inputs or results |
 
 ### Fix first
 1. **<problem in plain words>** (`file:line`)
@@ -124,6 +126,9 @@ Offer to make the changes. Apply them only when the user agrees. Preferred fixes
   `reversible={false}` for actions that can't be undone, which adds a second
   confirmation step. Don't gate read-only tools: needless confirmations
   train people to click through the ones that matter.
+- **tools-visible:** render every tool call in the conversation with a
+  human-readable label, its inputs, and its outcome. felt-ui's `<ToolCall>`
+  does all three (`name`, `args`, `status`).
 
 After fixing, run the scan again and show the before and after scores.
 

@@ -30,7 +30,9 @@ export function findAll(files, pattern) {
   const hits = [];
   for (const file of files) {
     const lines = file.content.split('\n');
-    for (const match of file.content.matchAll(re)) {
+    // Match against the code with comments blanked out, so a comment
+    // that merely *mentions* useChat or <ToolCall> doesn't count.
+    for (const match of stripComments(file.content).matchAll(re)) {
       const line = lineNumberAt(file.content, match.index);
       hits.push({ path: file.path, line, text: lines[line - 1].trim() });
     }
@@ -50,6 +52,44 @@ export function findSignals(files, signals) {
   return signals.flatMap(({ name, pattern }) =>
     findAll(files, pattern).map((hit) => ({ signal: name, ...hit })),
   );
+}
+
+/**
+ * Replace comments with spaces, keeping every newline, so line numbers
+ * and positions still match the original file.
+ *
+ * Handles block comments and // line comments, and skips text inside
+ * quotes, so "https://example.com" in a string is left alone.
+ */
+export function stripComments(text) {
+  let out = '';
+  let i = 0;
+  const blank = (s) => s.replace(/[^\n]/g, ' ');
+  while (i < text.length) {
+    const ch = text[i];
+    const next = text[i + 1];
+    if (ch === '"' || ch === "'" || ch === '`') {
+      // Copy the whole string literal unchanged.
+      let j = i + 1;
+      while (j < text.length && text[j] !== ch) j += text[j] === '\\' ? 2 : 1;
+      out += text.slice(i, j + 1);
+      i = j + 1;
+    } else if (ch === '/' && next === '*') {
+      const end = text.indexOf('*/', i + 2);
+      const stop = end === -1 ? text.length : end + 2;
+      out += blank(text.slice(i, stop));
+      i = stop;
+    } else if (ch === '/' && next === '/') {
+      const end = text.indexOf('\n', i);
+      const stop = end === -1 ? text.length : end;
+      out += blank(text.slice(i, stop));
+      i = stop;
+    } else {
+      out += ch;
+      i++;
+    }
+  }
+  return out;
 }
 
 // Count the newlines before a character position to get its line.

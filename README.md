@@ -44,7 +44,7 @@ npm run example
 
 Add `--json` for machine-readable results an agent or CI job can use.
 
-**v0.1 status:** 2 of 8 checks are built: `stop` and `gates`. See [CHECKS.md](CHECKS.md) for the rest.
+**v0.1 status:** 3 of 8 checks are built: `stop`, `gates`, and `tools-visible`. See [CHECKS.md](CHECKS.md) for the rest.
 
 ## How it fits together
 
