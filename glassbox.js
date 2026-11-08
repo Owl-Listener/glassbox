@@ -11,6 +11,7 @@
 import { collectFiles } from './shared/files.js';
 import { checkStop } from './shared/checks/stop.js';
 import { checkGates } from './shared/checks/gates.js';
+import { overallScore } from './shared/report.js';
 
 const CHECKS = [checkStop, checkGates];
 
@@ -23,11 +24,13 @@ if (!folder) {
 
 const files = collectFiles(folder);
 const results = CHECKS.map((check) => check(files));
+const score = overallScore(results);
 
 if (args.includes('--json')) {
-  console.log(JSON.stringify(results, null, 2));
+  console.log(JSON.stringify({ folder, files: files.length, score, results }, null, 2));
 } else {
-  console.log(`\nGlassbox · ${folder} · ${files.length} source files\n`);
+  console.log(`\nGlassbox · ${folder} · ${files.length} source files`);
+  console.log(score === null ? 'Overall: nothing to assess yet\n' : `Overall: ${score}/100\n`);
   for (const r of results) printResult(r);
 }
 
