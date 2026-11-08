@@ -71,6 +71,10 @@ export function findTools(files) {
       // Lots of objects have a `name`. Only count ones that also
       // describe their inputs, which is what makes them a tool.
       if (!/\b(input_schema|inputSchema|parameters)\s*:/.test(body)) continue;
+      // Schema tools are sent to a model from server code. The same shape
+      // inside a React component is usually a list shown to people, like a
+      // docs page describing tools. (Found in a real app, field-tests/.)
+      if (/\.(tsx|jsx)$/.test(path)) continue;
       tools.push({ name: m[1], path, line: lineAt(content, m.index), body, style: 'schema' });
     }
   }
@@ -125,7 +129,9 @@ export function nameWords(name) {
  */
 export function actionWords(name) {
   const words = nameWords(name);
-  if (words.length > 1 && ['create', 'make', 'build', 'get'].includes(words[0]) && words[words.length - 1] === 'tool') {
+  // Not "get": getRuleExecutionTool reads, and stripping "get" would hide
+  // that. (Found in a real app, field-tests/.)
+  if (words.length > 1 && ['create', 'make', 'build'].includes(words[0]) && words[words.length - 1] === 'tool') {
     return words.slice(1, -1);
   }
   if (words.length > 1 && words[words.length - 1] === 'tool') return words.slice(0, -1);

@@ -21,7 +21,7 @@ const SKIP_DIRS = new Set([
   // Tests and mocks describe how the code *should* behave, with fake
   // streams and tools. Counting them would hide real gaps in the product.
   '__tests__', '__mocks__', 'tests', 'test', 'e2e', 'cypress', 'playwright',
-  'evals', 'fixtures', '__fixtures__',
+  'evals', 'fixtures', '__fixtures__', 'benchmarks', 'benchmark',
 ]);
 
 // Test and story files that live next to the code they test.
