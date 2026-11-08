@@ -2,15 +2,17 @@
 
 *Commit `a8989b5` (2026-11-03) · 147 source files · reviewed by reading the code, not by running the app*
 
-**Overall: 51/100 after judgment** (scan: 77) · 4 checks applied · not yet assessed: plan, sources
+**Overall: 51/100 after judgment** (scan: 77) · 4 of 8 checks applied · not applicable: gates (no consequential tools), plan (a short tool loop), refusal (none defined), sources (no retrieval)
 
 | Check | Scan | Judged | Verdict |
 |---|---|---|---|
 | stop: user can stop the agent | 100 | **40** | ✗ The main chat input has no working stop control while the answer streams |
 | gates: risky actions ask first | n/a | n/a | 5 tools, all reversible in-app document actions or reads |
 | tools-visible: user sees what it did | 100 | 100 | ✓ Tool calls render with inputs and status |
+| plan: shown before the work | n/a | n/a | `isStepCount(5)` is a short tool loop (call a tool, then answer), not a long-running agent |
 | failure: errors are legible | 90 | **70** | ✗ Errors show as a toast, but there's no retry, and most say "Oops, an error occurred!" |
 | refusal: says why and what instead | n/a | n/a | No refusal behaviour defined in the prompts, so the model's defaults apply |
+| sources: claims show sources | n/a | n/a | No search or retrieval |
 | accessible-stream: works for everyone | 3 | 3 | ✗ Answers aren't announced; most icon buttons are unnamed; motion ignores user settings |
 
 ### Fix first

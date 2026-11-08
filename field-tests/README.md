@@ -34,6 +34,13 @@ Neither app defines refusal behaviour, so the check is **not applicable** to bot
 - **Mentioning isn't instructing.** Morphic's "skip suggestions in cases where you could not answer (refusal, …)" uses the noun. Only the verbs (decline, refuse) count.
 - **A scraper's `content_filter`** (it strips HTML clutter) isn't moderation. Only the model's `content-filter` finish reason counts.
 
+## What plan and sources learned from these apps
+
+- **A short tool loop isn't an agent.** ai-chatbot's `isStepCount(5)` lets the chat call a tool and then answer; it needs no plan. `plan` now applies only to agent frameworks, step limits above 5 (or computed ones), or products with a planning tool.
+- **Type names aren't UI.** `createContext<CitationContextValue>` matched "a Citation component". Names ending in Props, Value, Type, Context or Data are now treated as types.
+- **`[0]` isn't a citation.** `Parameters<typeof regenerate>[0]` matched a bracket-number pattern. Inline citations are now recognised by components and prompt instructions only.
+- **Looking up your own data isn't retrieval.** A `lookupOrder` tool reads the shop's database, not a source a user needs to verify. "fetch", "lookup" and "get" now count only when the tool's description is about the web or documents.
+
 ## What the first run got wrong, and what changed
 
 The first scan of these two apps found **no tools in either**, so two checks silently didn't run. Fixed in the same pull request:
