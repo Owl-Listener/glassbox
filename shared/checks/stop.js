@@ -56,7 +56,8 @@ const CANCEL = [
 const WIRED = [
   {
     name: 'Click handler that stops',
-    pattern: /\bon(Click|Press)\s*=\s*\{[^}]*?(stop|abort|cancel)/i,
+    // stopPropagation() is a browser detail, not a stop button.
+    pattern: /\bon(Click|Press)\s*=\s*\{[^}]*?(stop(?!(Immediate)?Propagation)|abort|cancel)/i,
   },
 ];
 
@@ -138,7 +139,8 @@ export function checkStop(files) {
 
   // These need a human-level read whatever the score.
   result.judge.push(
-    'Is the stop control visible from the first token without opening a menu?',
+    'Is the stop control visible from the first token to the last, without opening a menu? Read the condition that shows it: a control shown only while status is "submitted" disappears as soon as text starts streaming.',
+    'Is the main stop control in the chat input? A stop control that only lives in a side panel or toolbar doesn\'t count for the main conversation.',
     'Does it actually cancel the request (abort), or just hide the output while the model keeps generating and billing?',
     'If the handler is named "cancel…", is it really cancelling the response and not something else, like cancelling an edit?',
   );

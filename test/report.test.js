@@ -23,7 +23,7 @@ test('overall score is null when nothing applies', () => {
   assert.equal(overallScore([{ applicable: false, score: null, weight: 5 }]), null);
 });
 
-test('scanning skips dependencies and installed agent skills', () => {
+test('scanning skips dependencies, installed skills, tests and evals', () => {
   const root = mkdtempSync(join(tmpdir(), 'glassbox-'));
   const put = (path) => {
     mkdirSync(join(root, path, '..'), { recursive: true });
@@ -33,6 +33,9 @@ test('scanning skips dependencies and installed agent skills', () => {
   put('node_modules/ai/index.js');
   put('.claude/skills/glassbox/examples/ungated-agent/route.ts');
   put('.cursor/skills/other/thing.js');
+  put('lib/__tests__/chat.test.tsx');
+  put('components/chat.test.tsx');
+  put('evals/tasks/fixture-tools.ts');
 
   const paths = collectFiles(root).map((f) => f.path);
   assert.deepEqual(paths, [join('app', 'Chat.tsx')]);

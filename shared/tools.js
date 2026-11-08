@@ -15,6 +15,8 @@
 //
 // Pure functions only: files in, a list of tools out.
 
+import { stripComments } from './signals.js';
+
 /**
  * @param {{path: string, content: string}[]} files
  * @returns {{name: string, path: string, line: number, body: string, style: 'ai-sdk' | 'schema'}[]}
@@ -27,27 +29,43 @@ export function findTools(files) {
   for (const { path, content } of files) {
     const spans = []; // where AI SDK tools are, to avoid counting them twice
 
-    // --- Style 1: `name: tool(` -------------------------------------
-    for (const m of content.matchAll(/(['"]?)([A-Za-z_$][\w$]*)\1\s*:\s*tool\s*\(/g)) {
+    // --- Style 1: any call to tool(...) or dynamicTool(...) ---------
+    // Real apps write AI SDK tools in several shapes, so we find every
+    // call and work out the name from what surrounds it:
+    //   sendEmail: tool({...})                      → "sendEmail"
+    //   export const getWeather = tool({...})       → "getWeather"
+    //   export const createDocument = (p) => tool({ → "createDocument"
+    //   function createFetchTool() { return tool({  → "createFetchTool"
+    // `(?<![\w.$])` skips look-alikes such as callTool( or mcp.tool(.
+    // Comments are blanked first so a commented-out tool isn't counted.
+    // Two cleaned-up copies of the file, same length and line numbers:
+    //  - code: comments blanked (used for names in quotes, like name: 'x')
+    //  - bare: comments AND string contents blanked, so prose in a prompt
+    //    such as "start with the fetch tool (skip search)" isn't a tool.
+    const code = stripComments(content);
+    const bare = stripComments(content, { strings: true });
+    for (const m of bare.matchAll(/(?<![\w.$])(tool|dynamicTool)\s*\(/g)) {
       const open = m.index + m[0].length - 1; // position of the "("
-      const close = matchingBracket(content, open);
+      const close = matchingBracket(bare, open);
       if (close === -1) continue;
       spans.push([open, close]);
+      const name = toolNameBefore(bare, m.index);
       tools.push({
-        name: m[2],
+        name: name.value,
         path,
-        line: lineAt(content, m.index),
+        line: lineAt(content, name.index ?? m.index),
         body: content.slice(open, close + 1),
         style: 'ai-sdk',
+        dynamic: m[1] === 'dynamicTool',
       });
     }
 
     // --- Style 2: `{ name: '...', input_schema / parameters ... }` --
-    for (const m of content.matchAll(/\bname\s*:\s*['"]([\w.-]+)['"]/g)) {
+    for (const m of code.matchAll(/\bname\s*:\s*['"]([\w.-]+)['"]/g)) {
       if (spans.some(([a, b]) => m.index > a && m.index < b)) continue;
-      const open = enclosingBrace(content, m.index);
+      const open = enclosingBrace(code, m.index);
       if (open === -1) continue;
-      const close = matchingBracket(content, open);
+      const close = matchingBracket(code, open);
       if (close === -1) continue;
       const body = content.slice(open, close + 1);
       // Lots of objects have a `name`. Only count ones that also
@@ -61,6 +79,34 @@ export function findTools(files) {
 }
 
 /**
+ * Work out a tool's name from the code just before its tool( call.
+ * Returns { value, index } where index is where the name was found
+ * (used for the line number), or a placeholder when nothing fits.
+ */
+function toolNameBefore(code, callIndex) {
+  const before = code.slice(Math.max(0, callIndex - 2000), callIndex);
+  const offset = Math.max(0, callIndex - 2000);
+
+  // Directly assigned: `getWeather: tool(` or `const getWeather = tool(`
+  const direct = before.match(/(['"]?)([A-Za-z_$][\w$]*)\1\s*:\s*$|(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*$/);
+  if (direct) {
+    const value = direct[2] || direct[3];
+    return { value, index: offset + direct.index + direct[0].indexOf(value) };
+  }
+
+  // Inside a factory: the nearest function declaration or arrow-function
+  // const before the call, e.g. `const createDocument = (props) =>`.
+  const factory = /function\s+([A-Za-z_$][\w$]*)|(?:const|let)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?(?:\([^()]*(?:\([^()]*\)[^()]*)*\)|[A-Za-z_$][\w$]*)\s*(?::[^=]*)?=>/g;
+  let last = null;
+  for (const m of before.matchAll(factory)) last = m;
+  if (last) {
+    const value = last[1] || last[2];
+    return { value, index: offset + last.index + last[0].indexOf(value) };
+  }
+  return { value: '(unnamed tool)', index: null };
+}
+
+/**
  * Split a tool name into lowercase words:
  *   "sendEmail" → ["send", "email"], "delete_file" → ["delete", "file"]
  */
@@ -70,6 +116,20 @@ export function nameWords(name) {
     .split(/[\s_.-]+/)
     .filter(Boolean)
     .map((w) => w.toLowerCase());
+}
+
+/**
+ * The words that describe what a tool *does*, without factory wrapping:
+ *   "createSendEmailTool" → ["send", "email"], "createDocument" → ["document"]
+ * Used for risk decisions; reports still show the full name.
+ */
+export function actionWords(name) {
+  const words = nameWords(name);
+  if (words.length > 1 && ['create', 'make', 'build', 'get'].includes(words[0]) && words[words.length - 1] === 'tool') {
+    return words.slice(1, -1);
+  }
+  if (words.length > 1 && words[words.length - 1] === 'tool') return words.slice(0, -1);
+  return words;
 }
 
 // ---------------------------------------------------------------------
