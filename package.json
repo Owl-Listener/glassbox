@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node --test",
-    "example": "node glassbox.js examples/unstoppable-chat && node glassbox.js examples/stoppable-chat"
+    "example": "node glassbox.js examples/ungated-agent && node glassbox.js examples/gated-agent",
+    "example:stop": "node glassbox.js examples/unstoppable-chat && node glassbox.js examples/stoppable-chat"
   },
   "engines": {
     "node": ">=20"

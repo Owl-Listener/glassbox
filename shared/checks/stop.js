@@ -87,6 +87,7 @@ export function checkStop(files) {
   if (streaming.length === 0) {
     result.applicable = false;
     result.score = null;
+    result.reason = 'no streaming found';
     return result;
   }
   result.evidence.push(...streaming);
