@@ -11,7 +11,10 @@ These are code reviews, not usability tests: the apps were read, not run. Each r
 | [theopenco/llmgateway](theopenco-llmgateway.md) | `525117a` | refusal 50 | refusal **83** | "invite a product question" is a way forward; numbered prompt items are separate instructions |
 | [elysiajs/arona](elysiajs-arona.md) | `ed82fa1` | refusal 0 | refusal **0** | A genuine cold wall, confirmed |
 
-The last two were reviewed for `refusal` only, because neither ai-chatbot nor Morphic defines any refusal behaviour.
+| [elie222/inbox-zero](elie222-inbox-zero.md) | `47f9b44` | gates 0 | gates **67** | A "prepare, then the user confirms" pattern counts as a gate; "email" is a noun in an email app |
+| [cloudflare/agents-starter](cloudflare-agents-starter.md) | `4ea6a72` | gates 0 | gates n/a | Cancelling a reminder isn't consequential |
+
+llmgateway and arona were reviewed for `refusal` only, because neither ai-chatbot nor Morphic defines any refusal behaviour. inbox-zero and agents-starter were reviewed for `gates` only, because none of the first four apps has consequential tools.
 
 ## What accessible-stream learned from these apps
 
@@ -51,6 +54,17 @@ Two more apps, chosen because their prompts *do* define refusals, tested it prop
 - **One instruction per line.** Prompts are often numbered lists. The check used to read the next two sentences as part of a refusal, which can cross into the next item, a different rule. It now stops at the end of the line.
 - **"Blocked by X's content filter" is a reason.** It names what stopped the request, even if not what triggered it.
 - **arona's cold wall held up.** *"Politely decline answer not related to Elysia…"* scored 0 before and after: no reason, no alternative.
+
+## What gates learned from these apps
+
+The first scan gave inbox-zero **0** and llmgateway **100**. Both were wrong.
+
+- **"Prepare, then the user confirms" is a gate.** inbox-zero's send, reply and forward tools only build a pending email; the UI sends it after the user confirms. The scan missed it and called sending ungated. It now recognises `createPending…()` and descriptions like "for the user to approve" or "does not send immediately".
+- **Nouns aren't actions.** In an email app, "email" and "mail" are everywhere (`testRulesOnEmailTool`). Only verbs count: send, reply, forward, delete, trash, unsubscribe… In descriptions, words that are usually nouns there ("replies", "posts", "bookings") don't count either.
+- **"get" stays read-only.** Stripping `get` from factory names like `getRuleExecutionForMessageTool` hid the read verb.
+- **"Gate everywhere" is for read-only tools.** Asking before *creating* a rule or *saving* a memory is caution, not noise. Only tools whose name starts with a read verb are penalised.
+- **"Cancel" depends on what's cancelled.** A reminder can be redone; a subscription, order or booking can't.
+- **llmgateway's 100 was two false finds:** a tool list shown on a docs page (a `.tsx` component, not a tool) and test data in `benchmarks/`. Both are now skipped. Its pass came from an `onApprove` on the billing page; an approval step now has to be in code that deals with tool calls. llmgateway is correctly **not applicable**.
 
 ## What the first run got wrong, and what changed
 

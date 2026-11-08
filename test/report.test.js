@@ -36,6 +36,7 @@ test('scanning skips dependencies, installed skills, tests and evals', () => {
   put('lib/__tests__/chat.test.tsx');
   put('components/chat.test.tsx');
   put('evals/tasks/fixture-tools.ts');
+  put('packages/benchmarks/src/suites/capability.ts');
 
   const paths = collectFiles(root).map((f) => f.path);
   assert.deepEqual(paths, [join('app', 'Chat.tsx')]);
