@@ -8,7 +8,20 @@ Each finding cites the research behind it and points to a fix.
 
 > 🚧 Early days, being built in public. See [CHECKS.md](CHECKS.md) for the eight checks planned for v0.1.
 
+## Use it as a skill
+
+Install it in your project, then ask your coding agent to *"review my AI app with glassbox"*:
+
+```bash
+git clone https://github.com/Owl-Listener/glassbox .claude/skills/glassbox
+```
+
+That path is for Claude Code. For Cursor use `.cursor/skills/glassbox`, for Gemini CLI `.gemini/skills/glassbox`.
+
+The agent runs the scan, checks each finding by reading your code, and gives you a short report: what to fix first, why it matters to your users, and how to fix it. It offers to make the fixes, and only applies them if you say yes. See [SKILL.md](SKILL.md).
+
 ## Try it
+
 
 Glassbox needs only Node 20+, with no dependencies to install.
 
@@ -31,7 +44,7 @@ npm run example
 
 Add `--json` for machine-readable results an agent or CI job can use.
 
-**v0.1 status:** 2 of 8 checks are built: `stop` and `gates`. See [CHECKS.md](CHECKS.md) for the rest.
+**v0.1 status:** 3 of 8 checks are built: `stop`, `gates`, and `tools-visible`. See [CHECKS.md](CHECKS.md) for the rest.
 
 ## How it fits together
 

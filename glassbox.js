@@ -11,8 +11,10 @@
 import { collectFiles } from './shared/files.js';
 import { checkStop } from './shared/checks/stop.js';
 import { checkGates } from './shared/checks/gates.js';
+import { checkToolsVisible } from './shared/checks/tools-visible.js';
+import { overallScore } from './shared/report.js';
 
-const CHECKS = [checkStop, checkGates];
+const CHECKS = [checkStop, checkGates, checkToolsVisible];
 
 const args = process.argv.slice(2);
 const folder = args.find((a) => !a.startsWith('--'));
@@ -23,11 +25,13 @@ if (!folder) {
 
 const files = collectFiles(folder);
 const results = CHECKS.map((check) => check(files));
+const score = overallScore(results);
 
 if (args.includes('--json')) {
-  console.log(JSON.stringify(results, null, 2));
+  console.log(JSON.stringify({ folder, files: files.length, score, results }, null, 2));
 } else {
-  console.log(`\nGlassbox · ${folder} · ${files.length} source files\n`);
+  console.log(`\nGlassbox · ${folder} · ${files.length} source files`);
+  console.log(score === null ? 'Overall: nothing to assess yet\n' : `Overall: ${score}/100\n`);
   for (const r of results) printResult(r);
 }
 
@@ -41,7 +45,7 @@ function printResult(r) {
   for (const issue of r.issues) console.log(`  ✗ ${issue.message}`);
   if (r.evidence.length) {
     console.log('  Evidence:');
-    for (const e of r.evidence) console.log(`    ${e.path}:${e.line}  ${e.signal}  │ ${e.text}`);
+    for (const e of r.evidence) console.log(`    ${e.line ? `${e.path}:${e.line}` : e.path}  ${e.signal}  │ ${e.text}`);
   }
   if (r.judge.length) {
     console.log('  For the agent to verify:');

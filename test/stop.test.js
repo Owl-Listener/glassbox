@@ -94,3 +94,13 @@ test('always hands the agent questions to verify when applicable', () => {
   const r = checkStop(app(`const { stop, isLoading } = useChat();\n<button onClick={stop} />`));
   assert.ok(r.judge.length > 0);
 });
+
+test('a comment mentioning useChat() does not make a product "streaming"', () => {
+  const r = checkStop(app(`// We might add useChat() later\nexport const x = 1;`));
+  assert.equal(r.applicable, false);
+});
+
+test('URLs inside strings are not mistaken for comments', () => {
+  const r = checkStop(app(`fetch("https://api.example.com"); const { stop, isLoading } = useChat();\n<button onClick={stop} />`));
+  assert.equal(r.score, 100);
+});
