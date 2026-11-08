@@ -2,7 +2,7 @@
 
 *Commit `a8989b5` (2026-11-03) · 147 source files · reviewed by reading the code, not by running the app*
 
-**Overall: 51/100 after judgment** (scan: 77) · 4 checks applied · not yet assessed: plan, refusal, sources
+**Overall: 51/100 after judgment** (scan: 77) · 4 checks applied · not yet assessed: plan, sources
 
 | Check | Scan | Judged | Verdict |
 |---|---|---|---|
@@ -10,6 +10,7 @@
 | gates: risky actions ask first | n/a | n/a | 5 tools, all reversible in-app document actions or reads |
 | tools-visible: user sees what it did | 100 | 100 | ✓ Tool calls render with inputs and status |
 | failure: errors are legible | 90 | **70** | ✗ Errors show as a toast, but there's no retry, and most say "Oops, an error occurred!" |
+| refusal: says why and what instead | n/a | n/a | No refusal behaviour defined in the prompts, so the model's defaults apply |
 | accessible-stream: works for everyone | 3 | 3 | ✗ Answers aren't announced; most icon buttons are unnamed; motion ignores user settings |
 
 ### Fix first

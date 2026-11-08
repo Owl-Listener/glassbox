@@ -26,6 +26,14 @@ The first version of the check gave both apps full marks for live regions. Readi
 - **`useChat<ChatMessage>(…)`.** A TypeScript type argument hid ai-chatbot's main chat hook from every check. Fixed everywhere.
 - **"Error" is usually a label**, a heading above the real error text. Only a bare `>Error<` as the whole message counts as generic.
 
+## What refusal learned from these apps
+
+Neither app defines refusal behaviour, so the check is **not applicable** to both, and hasn't yet been field-tested on an app that does. Reading their prompts still sharpened it:
+
+- **Method isn't refusal.** Morphic's "Do NOT answer informational questions based only on internal knowledge" means *search first*, not *say no*. Plain "do not answer" doesn't count as a refusal instruction.
+- **Mentioning isn't instructing.** Morphic's "skip suggestions in cases where you could not answer (refusal, …)" uses the noun. Only the verbs (decline, refuse) count.
+- **A scraper's `content_filter`** (it strips HTML clutter) isn't moderation. Only the model's `content-filter` finish reason counts.
+
 ## What the first run got wrong, and what changed
 
 The first scan of these two apps found **no tools in either**, so two checks silently didn't run. Fixed in the same pull request:

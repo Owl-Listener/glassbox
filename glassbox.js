@@ -14,9 +14,10 @@ import { checkGates } from './shared/checks/gates.js';
 import { checkToolsVisible } from './shared/checks/tools-visible.js';
 import { checkAccessibleStream } from './shared/checks/accessible-stream.js';
 import { checkFailure } from './shared/checks/failure.js';
+import { checkRefusal } from './shared/checks/refusal.js';
 import { overallScore } from './shared/report.js';
 
-const CHECKS = [checkStop, checkGates, checkToolsVisible, checkFailure, checkAccessibleStream];
+const CHECKS = [checkStop, checkGates, checkToolsVisible, checkFailure, checkRefusal, checkAccessibleStream];
 
 const args = process.argv.slice(2);
 const folder = args.find((a) => !a.startsWith('--'));

@@ -1,7 +1,7 @@
 ---
 name: glassbox
 version: 0.1.0
-description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, can they see what the agent did, do failures say what went wrong and how to recover, and does it work with screen readers, keyboards, and reduced-motion settings. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
+description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, can they see what the agent did, do failures say what went wrong and how to recover, do refusals explain why and offer an alternative, and does it work with screen readers, keyboards, and reduced-motion settings. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
 ---
 
 # Glassbox
@@ -49,9 +49,10 @@ The scan skips these folders, so Glassbox never reports its own example apps.
 | `gates` | Do consequential actions ask the user first? | critical |
 | `tools-visible` | Can the user see what the agent did: what it sent, what came back? | high |
 | `failure` | When something fails, does the user learn what failed, why, and how to retry? | high |
+| `refusal` | When the product says no, does it give a reason and a way forward? | moderate |
 | `accessible-stream` | Do screen readers hear the answer? Can keyboards reach every control? Do icon buttons have names? Is motion respectful? | high |
 
-Three more checks are planned (see `CHECKS.md`). **Never imply the product
+Two more checks are planned (see `CHECKS.md`). **Never imply the product
 passes checks that haven't run.** Always say which areas weren't assessed.
 
 ## Instructions
@@ -96,7 +97,7 @@ Use this structure. Lead with what can hurt users. Keep it short.
 ```markdown
 ## Glassbox review: <project>
 
-**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, refusal, sources
+**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, sources
 
 | Check | Score | Verdict |
 |---|---|---|
@@ -135,6 +136,10 @@ Offer to make the changes. Apply them only when the user agrees. Preferred fixes
   what to do next, plus a Try again button that calls `regenerate()`. Don't
   swallow errors in AI code with empty or log-only `catch` blocks; if one is
   safe to ignore, say why in a comment.
+- **refusal:** in the system prompt, pair every "decline X" with "briefly
+  explain why and suggest what you can help with instead". In refusal
+  messages written into the code, include a reason and a next step
+  ("…because that needs identity checks. You can reset it at…").
 - **accessible-stream:** wrap the message list in `role="log"` (or render it
   inside a component that does), give every icon-only button an
   `aria-label` that says what it does, replace clickable `div`s with
