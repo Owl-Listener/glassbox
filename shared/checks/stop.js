@@ -25,7 +25,7 @@ import { findSignals } from '../signals.js';
 // Vercel AI SDK (our first target stack) and then plain SDK / browser
 // streaming so other apps aren't wrongly marked "not applicable".
 const STREAMING = [
-  { name: 'Vercel AI SDK hook', pattern: /\buse(Chat|Completion|Assistant|Object)\s*\(/ },
+  { name: 'Vercel AI SDK hook', pattern: /\buse(Chat|Completion|Assistant|Object)\s*(?:<[^>()]*>)?\s*\(/ },
   { name: 'Vercel AI SDK server stream', pattern: /\bstream(Text|Object|UI)\s*\(/ },
   { name: 'SDK streaming option', pattern: /\bstream\s*:\s*true\b/ },
   { name: 'SDK .stream() call', pattern: /\.stream\s*\(/ },

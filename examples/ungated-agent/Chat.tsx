@@ -3,13 +3,14 @@
 // - nothing tells a screen reader that a new answer is arriving
 // - the send button is just an icon, so a screen reader says "button"
 // - the suggestion chips are clickable divs a keyboard can't reach
+// - when the model fails, it says "Something went wrong" and offers no retry
 'use client';
 
 import { useChat } from '@ai-sdk/react';
 import { SendIcon } from 'lucide-react';
 
 export default function Chat() {
-  const { messages, input, setInput, sendMessage } = useChat();
+  const { messages, input, setInput, sendMessage, status } = useChat();
 
   return (
     <div>
@@ -20,6 +21,7 @@ export default function Chat() {
           )}
         </div>
       ))}
+      {status === 'error' && <p className="text-red-500">Something went wrong</p>}
       <div className="chip" onClick={() => sendMessage({ text: 'Where is my order?' })}>
         Where is my order?
       </div>

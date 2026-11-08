@@ -19,7 +19,7 @@ import { findTools } from '../tools.js';
 import { stripComments } from '../signals.js';
 
 // A file counts as UI if it's a React component file or uses a chat hook.
-const isUiFile = (f) => /\.(tsx|jsx)$/.test(f.path) || /\buse(Chat|Assistant)\s*\(/.test(f.content);
+const isUiFile = (f) => /\.(tsx|jsx)$/.test(f.path) || /\buse(Chat|Assistant)\s*(?:<[^>()]*>)?\s*\(/.test(f.content);
 
 // 1. The UI deals with tool-call messages. Covers the Vercel AI SDK's
 // message parts (`part.type === 'tool-sendEmail'`, `dynamic-tool`), its
