@@ -115,3 +115,8 @@ test('the judge question warns about stop shown only while "submitted"', () => {
   const r = checkStop(app(`const { stop, status } = useChat();\n{status === 'submitted' && <button onClick={stop}>Stop</button>}`));
   assert.ok(r.judge.some((q) => /"submitted"/.test(q)));
 });
+
+test('useChat<ChatMessage>() with a TypeScript type counts as streaming', () => {
+  const r = checkStop(app(`const { stop, status } = useChat<ChatMessage>({ id });\n{status === 'streaming' && <button onClick={stop}>Stop</button>}`));
+  assert.equal(r.score, 100);
+});

@@ -23,7 +23,7 @@ import { findElements, hasAttr } from '../jsx.js';
 
 // Same streaming signals the stop check uses. If nothing streams, the
 // "new output arrives over time" problem doesn't exist.
-const STREAMING = /\buse(Chat|Completion|Assistant|Object)\s*\(|\bstream(Text|Object|UI)\s*\(|\bstream\s*:\s*true\b|\.stream\s*\(|\bnew\s+EventSource\s*\(|\.getReader\s*\(\s*\)/;
+const STREAMING = /\buse(Chat|Completion|Assistant|Object)\s*(?:<[^>()]*>)?\s*\(|\bstream(Text|Object|UI)\s*\(|\bstream\s*:\s*true\b|\.stream\s*\(|\bnew\s+EventSource\s*\(|\.getReader\s*\(\s*\)/;
 
 const isUiFile = (f) => /\.(tsx|jsx)$/.test(f.path);
 

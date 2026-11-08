@@ -29,5 +29,8 @@ export async function POST(req: Request) {
     },
   });
 
+  // Saving the conversation can fail, and nobody will ever know.
+  saveConversation(messages).catch(console.error);
+
   return result.toUIMessageStreamResponse();
 }

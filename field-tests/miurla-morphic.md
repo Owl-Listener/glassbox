@@ -2,13 +2,14 @@
 
 *Commit `be5846d` (2026-11-05) · 382 source files · reviewed by reading the code, not by running the app*
 
-**Overall: 81/100** (scan: 81, confirmed) · 3 checks applied · not yet assessed: plan, failure, refusal, sources
+**Overall: 85/100** (scan: 85, confirmed) · 4 checks applied · not yet assessed: plan, refusal, sources
 
 | Check | Scan | Judged | Verdict |
 |---|---|---|---|
 | stop: user can stop the agent | 100 | 100 | ✓ The send button becomes a working stop button for the whole response |
 | gates: risky actions ask first | n/a | n/a | 7 tools, all search, fetch, drafting or planning; runtime MCP tools need a manual check |
 | tools-visible: user sees what it did | 100 | 100 | ✓ Search, fetch and todo calls render with inputs and results |
+| failure: errors are legible | 100 | 100 | ✓ Errors are shown, every answer has a Retry button, and handlers surface errors |
 | accessible-stream: works for everyone | 32 | 32 | ✗ Answers aren't announced; the send/stop button has no name |
 
 ### Fix first
@@ -25,6 +26,7 @@
 
 ### Fine as is
 
+- **failure:** the chat reads `error` from `useChat` (`components/chat.tsx:255`), `onError` turns failures into a user-facing toast via `toPublicErrorPayload` (`components/chat.tsx:187`), and each answer has a `RetryButton` (`components/message-actions.tsx:226`). Handlers that log also toast or re-throw (`components/chat.tsx:640`, `lib/tools/fetch.ts:147`).
 - **Reduced motion:** respected globally (`app/globals.css:377`, `@media (prefers-reduced-motion: reduce)`) and per component (`motion-reduce:` classes).
 - **stop:** `isLoading` covers both phases (`components/chat-panel.tsx:166`, `status === 'submitted' || status === 'streaming'`), and the button stays enabled and calls `stop` throughout (`components/chat-panel.tsx:959`, `onClick={isLoading ? stop : undefined}`).
 - **tools-visible:** tool parts render per type (`components/artifact/artifact-content.tsx:13`), with inputs (`components/artifact/todo-invocation-content.tsx:12`) and outputs once available (`components/artifact/search-artifact-content.tsx:16`).

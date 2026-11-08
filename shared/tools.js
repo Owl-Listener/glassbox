@@ -140,7 +140,7 @@ export function actionWords(name) {
 
 const PAIRS = { '(': ')', '{': '}', '[': ']' };
 
-function matchingBracket(text, openIndex) {
+export function matchingBracket(text, openIndex) {
   const stack = [];
   for (let i = openIndex; i < text.length; i++) {
     const ch = text[i];
