@@ -1,7 +1,7 @@
 ---
 name: glassbox
 version: 0.1.0
-description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, and can they see what the agent did. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
+description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, can they see what the agent did, and does it work with screen readers, keyboards, and reduced-motion settings. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
 ---
 
 # Glassbox
@@ -48,8 +48,9 @@ The scan skips these folders, so Glassbox never reports its own example apps.
 | `stop` | Can the user stop the agent mid-answer? | critical |
 | `gates` | Do consequential actions ask the user first? | critical |
 | `tools-visible` | Can the user see what the agent did: what it sent, what came back? | high |
+| `accessible-stream` | Do screen readers hear the answer? Can keyboards reach every control? Do icon buttons have names? Is motion respectful? | high |
 
-Five more checks are planned (see `CHECKS.md`). **Never imply the product
+Four more checks are planned (see `CHECKS.md`). **Never imply the product
 passes checks that haven't run.** Always say which areas weren't assessed.
 
 ## Instructions
@@ -94,7 +95,7 @@ Use this structure. Lead with what can hurt users. Keep it short.
 ```markdown
 ## Glassbox review: <project>
 
-**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, failure, refusal, sources, accessibility
+**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, failure, refusal, sources
 
 | Check | Score | Verdict |
 |---|---|---|
@@ -129,6 +130,11 @@ Offer to make the changes. Apply them only when the user agrees. Preferred fixes
 - **tools-visible:** render every tool call in the conversation with a
   human-readable label, its inputs, and its outcome. felt-ui's `<ToolCall>`
   does all three (`name`, `args`, `status`).
+- **accessible-stream:** wrap the message list in `role="log"` (or render it
+  inside a component that does), give every icon-only button an
+  `aria-label` that says what it does, replace clickable `div`s with
+  `<button>`, and respect `prefers-reduced-motion` (`motion-reduce:`
+  classes, or framer-motion's `<MotionConfig reducedMotion="user">`).
 
 After fixing, run the scan again and show the before and after scores.
 

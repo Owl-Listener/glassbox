@@ -12,9 +12,10 @@ import { collectFiles } from './shared/files.js';
 import { checkStop } from './shared/checks/stop.js';
 import { checkGates } from './shared/checks/gates.js';
 import { checkToolsVisible } from './shared/checks/tools-visible.js';
+import { checkAccessibleStream } from './shared/checks/accessible-stream.js';
 import { overallScore } from './shared/report.js';
 
-const CHECKS = [checkStop, checkGates, checkToolsVisible];
+const CHECKS = [checkStop, checkGates, checkToolsVisible, checkAccessibleStream];
 
 const args = process.argv.slice(2);
 const folder = args.find((a) => !a.startsWith('--'));
