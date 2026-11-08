@@ -19,7 +19,7 @@
 // minus 10 for each harmless tool that's gated anyway ("Gate everywhere":
 // needless confirmations train people to click through the ones that matter).
 
-import { findTools, nameWords } from '../tools.js';
+import { findTools, actionWords } from '../tools.js';
 
 // Words in a tool's name that mean "this changes something in the world".
 const RISKY_WORDS = new Set([
@@ -53,8 +53,8 @@ const GATE_ANYWHERE = /\b(needsApproval|requiresApproval|onApprove)\b|<ToolCall\
 
 /** Is this tool consequential? Returns the reason, or null. */
 export function riskReason(tool) {
-  const words = nameWords(tool.name);
-  if (READ_VERBS.has(words[0])) return null;
+  const words = actionWords(tool.name);
+  if (words.length && READ_VERBS.has(words[0])) return null;
   const risky = words.find((w) => RISKY_WORDS.has(w));
   if (risky) return `name contains "${risky}"`;
   const description = tool.body.match(/\bdescription\s*:\s*(['"`])([\s\S]*?)\1/);
@@ -112,7 +112,13 @@ export function checkGates(files) {
     (why ? risky : harmless).push({ tool, why });
   }
   if (risky.length === 0) {
-    return { ...result, applicable: false, score: null, reason: `${tools.length} tool(s) found, none consequential` };
+    // Tools created at runtime (dynamicTool, usually MCP servers) can do
+    // anything, and their names aren't in the code. Say so, rather than
+    // quietly calling the product safe.
+    const note = tools.some((t) => t.dynamic)
+      ? '; some tools are created at runtime (e.g. MCP), so check those by hand'
+      : '';
+    return { ...result, applicable: false, score: null, reason: `${tools.length} tool(s) found, none consequential${note}` };
   }
 
   // 3. Is each consequential tool gated?
@@ -154,6 +160,9 @@ export function checkGates(files) {
     'Does the approval show the details that matter before the user approves: who it goes to, how much, what gets deleted?',
     'Are there consequential tools whose names don\'t give them away (e.g. "runAction", "execute")? Read the tool list and check.',
   );
+  if (tools.some((t) => t.dynamic)) {
+    result.judge.push('This product creates tools at runtime (dynamicTool, often MCP servers). Their names and risks are unknown until then: check whether those calls go through an approval step.');
+  }
   if (risky.some(({ tool }) => tool.style === 'ai-sdk' && !/\bexecute\s*[:(]/.test(tool.body))) {
     result.judge.push('For tools with no execute function: does the UI really ask the user, or does it run them automatically (e.g. in onToolCall)?');
   }

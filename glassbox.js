@@ -45,7 +45,9 @@ function printResult(r) {
   for (const issue of r.issues) console.log(`  ✗ ${issue.message}`);
   if (r.evidence.length) {
     console.log('  Evidence:');
-    for (const e of r.evidence) console.log(`    ${e.line ? `${e.path}:${e.line}` : e.path}  ${e.signal}  │ ${e.text}`);
+    const MAX = 10; // the full list is in --json
+    for (const e of r.evidence.slice(0, MAX)) console.log(`    ${e.line ? `${e.path}:${e.line}` : e.path}  ${e.signal}  │ ${e.text}`);
+    if (r.evidence.length > MAX) console.log(`    … and ${r.evidence.length - MAX} more (see --json)`);
   }
   if (r.judge.length) {
     console.log('  For the agent to verify:');

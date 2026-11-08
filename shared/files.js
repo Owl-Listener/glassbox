@@ -18,7 +18,14 @@ const SOURCE_EXT = /\.(js|jsx|ts|tsx|mjs|cjs)$/;
 const SKIP_DIRS = new Set([
   'node_modules', '.git', 'dist', 'build', '.next', 'out', 'coverage',
   '.claude', '.cursor', '.gemini', '.agents', '.codex', '.windsurf',
+  // Tests and mocks describe how the code *should* behave, with fake
+  // streams and tools. Counting them would hide real gaps in the product.
+  '__tests__', '__mocks__', 'tests', 'test', 'e2e', 'cypress', 'playwright',
+  'evals', 'fixtures', '__fixtures__',
 ]);
+
+// Test and story files that live next to the code they test.
+const SKIP_FILES = /\.(test|spec|stories)\.[jt]sx?$/;
 
 /**
  * @param {string} root  folder to scan
@@ -31,7 +38,7 @@ export function collectFiles(root) {
       const full = join(dir, entry.name);
       if (entry.isDirectory()) {
         if (!SKIP_DIRS.has(entry.name)) walk(full);
-      } else if (SOURCE_EXT.test(entry.name)) {
+      } else if (SOURCE_EXT.test(entry.name) && !SKIP_FILES.test(entry.name)) {
         files.push({ path: relative(root, full), content: readFileSync(full, 'utf8') });
       }
     }

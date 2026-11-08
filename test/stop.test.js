@@ -104,3 +104,14 @@ test('URLs inside strings are not mistaken for comments', () => {
   const r = checkStop(app(`fetch("https://api.example.com"); const { stop, isLoading } = useChat();\n<button onClick={stop} />`));
   assert.equal(r.score, 100);
 });
+
+test('stopPropagation() is not a stop button', () => {
+  const r = checkStop(app(`const { messages } = useChat();\n<div onClick={(e) => e.stopPropagation()} />`));
+  assert.equal(r.score, 0); // nothing can cancel the stream
+  assert.equal(r.evidence.filter((e) => e.signal.startsWith('Click')).length, 0);
+});
+
+test('the judge question warns about stop shown only while "submitted"', () => {
+  const r = checkStop(app(`const { stop, status } = useChat();\n{status === 'submitted' && <button onClick={stop}>Stop</button>}`));
+  assert.ok(r.judge.some((q) => /"submitted"/.test(q)));
+});

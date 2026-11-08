@@ -59,9 +59,10 @@ export function findSignals(files, signals) {
  * and positions still match the original file.
  *
  * Handles block comments and // line comments, and skips text inside
- * quotes, so "https://example.com" in a string is left alone.
+ * quotes, so "https://example.com" in a string is left alone. Pass
+ * { strings: true } to blank string contents as well.
  */
-export function stripComments(text) {
+export function stripComments(text, { strings = false } = {}) {
   let out = '';
   let i = 0;
   const blank = (s) => s.replace(/[^\n]/g, ' ');
@@ -72,7 +73,11 @@ export function stripComments(text) {
       // Copy the whole string literal unchanged.
       let j = i + 1;
       while (j < text.length && text[j] !== ch) j += text[j] === '\\' ? 2 : 1;
-      out += text.slice(i, j + 1);
+      const literal = text.slice(i, j + 1);
+      // With { strings: true }, blank the inside of the string too (keeping
+      // the quotes), so prose in a prompt like "use the fetch tool (…)"
+      // isn't mistaken for code.
+      out += strings ? ch + blank(literal.slice(1, -1)) + literal.slice(-1) : literal;
       i = j + 1;
     } else if (ch === '/' && next === '*') {
       const end = text.indexOf('*/', i + 2);

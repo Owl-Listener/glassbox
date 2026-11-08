@@ -124,3 +124,47 @@ test('a "}" inside a string does not break tool detection', () => {
   assert.equal(r.evidence.length, 1);
   assert.equal(r.score, 0);
 });
+
+// --- Patterns found in real apps (vercel/ai-chatbot, miurla/morphic) ---
+
+test('finds tools assigned to a const: export const getWeather = tool(...)', () => {
+  const tools = findTools(app(`export const getWeather = tool({ description: 'Weather', execute: async () => 1 });`));
+  assert.deepEqual(tools.map((t) => t.name), ['getWeather']);
+});
+
+test('finds tools built by factory functions, named after the factory', () => {
+  const tools = findTools(app(`
+    export const createDocument = ({ session, dataStream }: Props) =>
+      tool({ description: 'Create a document', execute: async () => 1 });
+
+    export function createSendEmailTool(options?: { from: string }) {
+      const retries = 3;
+      return tool({ description: 'Email', execute: async () => 1 });
+    }`));
+  assert.deepEqual(tools.map((t) => t.name), ['createDocument', 'createSendEmailTool']);
+});
+
+test('factory wrapping does not hide or invent risk', () => {
+  assert.match(riskReason({ name: 'createSendEmailTool', body: '' }), /send/);
+  assert.equal(riskReason({ name: 'createSearchTool', body: '' }), null);
+  assert.equal(riskReason({ name: 'createDocument', body: '' }), null);
+});
+
+test('"tool (" inside a prompt string is not a tool', () => {
+  const tools = findTools(app('const prompt = `For URLs: start with the fetch tool (skip search entirely)`;'));
+  assert.deepEqual(tools, []);
+});
+
+test('look-alike calls are not tools: callTool(), mcp.tool()', () => {
+  const tools = findTools(app(`await client.callTool(name, input); server.tool('x', handler);`));
+  assert.deepEqual(tools, []);
+});
+
+test('runtime (MCP) tools are mentioned even when nothing else is risky', () => {
+  const r = checkGates(app(`
+    export function createDynamicTool(name, description, handler) {
+      return dynamicTool({ description, inputSchema: s, execute: handler });
+    }`));
+  assert.equal(r.applicable, false);
+  assert.match(r.reason, /created at runtime/);
+});
