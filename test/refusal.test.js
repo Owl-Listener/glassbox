@@ -107,3 +107,23 @@ test("a scraper's content_filter setting is not moderation; the model's content-
   const model = checkRefusal([{ path: 'route.ts', content: `const r = await generateText({ model });\nif (r.finishReason === 'content-filter') show();` }]);
   assert.match(model.reason, /moderation or guardrail/);
 });
+
+// --- Patterns found in real apps (field-tests/) -----------------------
+
+test('"invite a product question" counts as a way forward', () => {
+  const r = checkRefusal(route(`${BASE}\n4. If the question is unrelated to Acme, politely decline and invite a product question.`));
+  assert.equal(r.score, 50); // way forward, but no reason
+});
+
+test('the next item in a numbered list is a different instruction', () => {
+  const r = checkRefusal(route(`${BASE}\n4. If the question is off-topic, politely decline.\n5. If the docs do not answer the question, suggest contacting support.`));
+  assert.equal(r.score, 0); // item 5's "suggest" belongs to a different rule
+});
+
+test('"blocked by X\'s content filter" counts as a reason', () => {
+  const files = [...route(`${BASE} Help with orders.`), {
+    path: 'filter.ts',
+    content: `export const MSG = "This request was blocked by Acme's content filter. Please contact support at help@acme.com.";`,
+  }];
+  assert.equal(checkRefusal(files).score, 100);
+});

@@ -38,11 +38,14 @@ const looksLikePrompt = (s) => s.length >= 120 && /\b(you|your)\b/i.test(s);
 const REFUSE_INSTRUCTION = /\b(declin(e|ing)|refus(e|ing)|off[- ]topic|outside (of )?(your|the|this) (scope|domain|purpose)|unrelated (questions|requests|topics)|(do not|don't|never) (help|assist) with)\b/i;
 // What a good instruction asks for, in the same sentence or the two after it.
 const ASKS_FOR_REASON = /\b(explain|why|reason|because|say what|tell (them|the user) (what|that))\b/i;
-const ASKS_FOR_PATH = /\b(instead|suggest|alternative|redirect|offer|point (them|the user)|what you can|recommend|help (them )?with|next step|where (they|to))\b/i;
+const ASKS_FOR_PATH = /\b(instead|suggest|alternative|redirect|offer|invite|point (them|the user)|what you can|recommend|help (them )?with|next step|where (they|to)|ask (about|a question about))\b/i;
 
 // --- 2. Refusal messages in code -----------------------------------------
 const REFUSAL_MESSAGE = /\b(I can(?:'|’|no)t (help|assist|do|answer|provide|respond)|I(?:'|’)m (sorry|afraid)\b[^"'`]{0,40}\b(can(?:'|’|no)t|cannot|unable)|I am unable to|I(?:'|’)m (not able|unable) to|(This|Your) (request|message|prompt|content) (violates|was blocked|is not allowed|isn(?:'|’)t allowed|cannot be processed))/i;
-const HAS_REASON = /\b(because|since|policy|policies|only (help|answer|work)|outside|not (designed|built|set up) to|limited to|isn(?:'|’)t something|safety|privacy)\b/i;
+// "blocked by X's content filter" names what stopped the request: that
+// counts as a reason, even if it doesn't say what triggered it.
+// (Found in a real app, field-tests/.)
+const HAS_REASON = /\b(because|since|policy|policies|only (help|answer|work)|outside|not (designed|built|set up) to|limited to|isn(?:'|’)t something|safety|privacy|blocked by [^.]{0,60}\b(filter|policy|rules?|settings?))\b/i;
 const HAS_PATH = /\b(instead|try|you (can|could|might)|contact|here(?:'|’)s|reach out|ask (me )?about|visit|support team|happy to help with|I can help with)\b/i;
 
 // Guardrails and moderation: worth a judge question about what users see.
@@ -113,11 +116,16 @@ export function checkRefusal(files) {
           hasPath: HAS_PATH.test(t.value),
         });
       } else if (looksLikePrompt(t.value)) {
-        // Split the prompt into sentences and look at each instruction to refuse.
-        const sentences = t.value.split(/(?<=[.!?])\s+|\n+/).filter((s) => s.trim());
-        sentences.forEach((sentence, k) => {
+        // Look at each instruction to refuse, together with the rest of its
+        // line. Prompts are often numbered or bulleted lists, and the next
+        // item is a different instruction, so the window stops at the line
+        // end. (Found in a real app, field-tests/.)
+        const promptLines = t.value.split('\n');
+        promptLines.forEach((textLine) => {
+          const sentences = textLine.split(/(?<=[.!?])\s+/).filter((x) => x.trim());
+          sentences.forEach((sentence, k) => {
           if (!REFUSE_INSTRUCTION.test(sentence)) return;
-          const window = sentences.slice(k, k + 3).join(' ');
+          const window = sentences.slice(k).join(' ');
           const offset = t.value.indexOf(sentence);
           sites.push({
             kind: 'Prompt tells the model to refuse',
@@ -126,6 +134,7 @@ export function checkRefusal(files) {
             text: sentence.trim().slice(0, 140),
             hasReason: ASKS_FOR_REASON.test(window),
             hasPath: ASKS_FOR_PATH.test(window),
+          });
           });
         });
       }
