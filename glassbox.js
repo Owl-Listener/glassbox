@@ -6,12 +6,13 @@
 //   node glassbox.js <folder>          readable report
 //   node glassbox.js <folder> --json   raw results, for agents and CI
 //
-// v0.1 runs one check (stop). Each new check gets added to CHECKS below.
+// Each new check gets imported here and added to CHECKS.
 
 import { collectFiles } from './shared/files.js';
 import { checkStop } from './shared/checks/stop.js';
+import { checkGates } from './shared/checks/gates.js';
 
-const CHECKS = [checkStop];
+const CHECKS = [checkStop, checkGates];
 
 const args = process.argv.slice(2);
 const folder = args.find((a) => !a.startsWith('--'));
@@ -33,7 +34,7 @@ if (args.includes('--json')) {
 function printResult(r) {
   console.log(`■ ${r.id} · ${r.label}  [${r.impact}]`);
   if (!r.applicable) {
-    console.log('  Not applicable: no streaming found.\n');
+    console.log(`  Not applicable: ${r.reason}.\n`);
     return;
   }
   console.log(`  Score: ${r.score}/100`);
