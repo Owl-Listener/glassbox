@@ -2,7 +2,7 @@
 
 *Commit `be5846d` (2026-11-05) · 382 source files · reviewed by reading the code, not by running the app*
 
-**Overall: 85/100** (scan: 85, confirmed) · 4 checks applied · not yet assessed: plan, refusal, sources
+**Overall: 85/100** (scan: 85, confirmed) · 4 checks applied · not yet assessed: plan, sources
 
 | Check | Scan | Judged | Verdict |
 |---|---|---|---|
@@ -10,6 +10,7 @@
 | gates: risky actions ask first | n/a | n/a | 7 tools, all search, fetch, drafting or planning; runtime MCP tools need a manual check |
 | tools-visible: user sees what it did | 100 | 100 | ✓ Search, fetch and todo calls render with inputs and results |
 | failure: errors are legible | 100 | 100 | ✓ Errors are shown, every answer has a Retry button, and handlers surface errors |
+| refusal: says why and what instead | n/a | n/a | No refusal behaviour defined in the prompts, so the model's defaults apply |
 | accessible-stream: works for everyone | 32 | 32 | ✗ Answers aren't announced; the send/stop button has no name |
 
 ### Fix first

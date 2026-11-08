@@ -44,7 +44,7 @@ npm run example
 
 Add `--json` for machine-readable results an agent or CI job can use.
 
-**v0.1 status:** 5 of 8 checks are built: `stop`, `gates`, `tools-visible`, `failure`, and `accessible-stream`.
+**v0.1 status:** 6 of 8 checks are built: `stop`, `gates`, `tools-visible`, `failure`, `refusal`, and `accessible-stream`.
 
 **Tested on real apps:** see [field-tests](field-tests/) for reviews of [vercel/ai-chatbot](field-tests/vercel-ai-chatbot.md) and [miurla/morphic](field-tests/miurla-morphic.md), including what the scan missed and what reading the code caught. See [CHECKS.md](CHECKS.md) for the rest.
 

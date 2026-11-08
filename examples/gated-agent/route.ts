@@ -9,6 +9,8 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model,
+    system:
+      'You are the support assistant for Acme, an online shoe store. You help customers with orders, refunds and delivery. If a question is off-topic, decline it: briefly explain that you only handle Acme orders, and suggest what you can help with instead.',
     messages,
     tools: {
       lookupOrder: tool({
