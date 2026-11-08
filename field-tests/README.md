@@ -8,6 +8,10 @@ These are code reviews, not usability tests: the apps were read, not run. Each r
 |---|---|---|---|---|
 | [vercel/ai-chatbot](vercel-ai-chatbot.md) | `a8989b5` | 77 | **51** | Stop shown only while `"submitted"` disappears during streaming; a `role="log"` in an unused component |
 | [miurla/morphic](miurla-morphic.md) | `be5846d` | 85 | 85 | Tools built by factory functions; live regions that wrap notices, not answers |
+| [theopenco/llmgateway](theopenco-llmgateway.md) | `525117a` | refusal 50 | refusal **83** | "invite a product question" is a way forward; numbered prompt items are separate instructions |
+| [elysiajs/arona](elysiajs-arona.md) | `ed82fa1` | refusal 0 | refusal **0** | A genuine cold wall, confirmed |
+
+The last two were reviewed for `refusal` only, because neither ai-chatbot nor Morphic defines any refusal behaviour.
 
 ## What accessible-stream learned from these apps
 
@@ -28,7 +32,7 @@ The first version of the check gave both apps full marks for live regions. Readi
 
 ## What refusal learned from these apps
 
-Neither app defines refusal behaviour, so the check is **not applicable** to both, and hasn't yet been field-tested on an app that does. Reading their prompts still sharpened it:
+ai-chatbot and Morphic define no refusal behaviour, so the check is **not applicable** to both. Reading their prompts still sharpened it:
 
 - **Method isn't refusal.** Morphic's "Do NOT answer informational questions based only on internal knowledge" means *search first*, not *say no*. Plain "do not answer" doesn't count as a refusal instruction.
 - **Mentioning isn't instructing.** Morphic's "skip suggestions in cases where you could not answer (refusal, …)" uses the noun. Only the verbs (decline, refuse) count.
@@ -40,6 +44,13 @@ Neither app defines refusal behaviour, so the check is **not applicable** to bot
 - **Type names aren't UI.** `createContext<CitationContextValue>` matched "a Citation component". Names ending in Props, Value, Type, Context or Data are now treated as types.
 - **`[0]` isn't a citation.** `Parameters<typeof regenerate>[0]` matched a bracket-number pattern. Inline citations are now recognised by components and prompt instructions only.
 - **Looking up your own data isn't retrieval.** A `lookupOrder` tool reads the shop's database, not a source a user needs to verify. "fetch", "lookup" and "get" now count only when the tool's description is about the web or documents.
+
+Two more apps, chosen because their prompts *do* define refusals, tested it properly:
+
+- **"Invite" is a way forward.** llmgateway's *"politely decline and invite a product question"* first scored 0. It's a redirect, so it now scores 50 (no reason given).
+- **One instruction per line.** Prompts are often numbered lists. The check used to read the next two sentences as part of a refusal, which can cross into the next item, a different rule. It now stops at the end of the line.
+- **"Blocked by X's content filter" is a reason.** It names what stopped the request, even if not what triggered it.
+- **arona's cold wall held up.** *"Politely decline answer not related to Elysia…"* scored 0 before and after: no reason, no alternative.
 
 ## What the first run got wrong, and what changed
 
