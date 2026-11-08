@@ -1,7 +1,7 @@
 ---
 name: glassbox
 version: 0.1.0
-description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, can they see what the agent did, do failures say what went wrong and how to recover, do refusals explain why and offer an alternative, and does it work with screen readers, keyboards, and reduced-motion settings. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
+description: "Review the code of an AI product (a chatbot, copilot, or agent) for the trust patterns its users need: can they stop the agent mid-answer, does it ask before taking consequential actions like sending, paying, or deleting, can they see what the agent did, do failures say what went wrong and how to recover, do refusals explain why and offer an alternative, and is a long-running agent's plan shown and agreed before it acts, do answers cite real sources, and does it work with screen readers, keyboards, and reduced-motion settings. Use when building or reviewing an AI chat or agent interface, when adding tools to an agent, before shipping an AI feature, or when the user asks whether their AI product is trustworthy, transparent, safe, or user-friendly. Triggers on: useChat, streamText, agent tools, tool calling, function calling, human-in-the-loop, approval step, AI UX review, agent UX, trust, stop button."
 ---
 
 # Glassbox
@@ -50,10 +50,13 @@ The scan skips these folders, so Glassbox never reports its own example apps.
 | `tools-visible` | Can the user see what the agent did: what it sent, what came back? | high |
 | `failure` | When something fails, does the user learn what failed, why, and how to retry? | high |
 | `refusal` | When the product says no, does it give a reason and a way forward? | moderate |
+| `plan` | For agents that run longer tasks: is the plan shown, and can the user approve it before work starts? | high |
+| `sources` | When the product retrieves information: are sources shown, linked, and attached to the claims they support? | moderate |
 | `accessible-stream` | Do screen readers hear the answer? Can keyboards reach every control? Do icon buttons have names? Is motion respectful? | high |
 
-Two more checks are planned (see `CHECKS.md`). **Never imply the product
-passes checks that haven't run.** Always say which areas weren't assessed.
+Checks only score what applies: a plain chat has no plan to show, and an
+app without search has no sources to cite. **Never imply the product
+passes a check that didn't apply.** Always list those checks and why.
 
 ## Instructions
 
@@ -97,7 +100,7 @@ Use this structure. Lead with what can hurt users. Keep it short.
 ```markdown
 ## Glassbox review: <project>
 
-**Overall: <score>/100** · <n> checks applied · not yet assessed: plan, sources
+**Overall: <score>/100** · <n> of 8 checks applied · not applicable: <check> (<reason>), …
 
 | Check | Score | Verdict |
 |---|---|---|
@@ -140,6 +143,13 @@ Offer to make the changes. Apply them only when the user agrees. Preferred fixes
   explain why and suggest what you can help with instead". In refusal
   messages written into the code, include a reason and a next step
   ("…because that needs identity checks. You can reset it at…").
+- **plan:** have the agent write its plan first (a plan or todo tool),
+  show it as a checklist, and let the user approve or edit it before the
+  first step runs (`needsApproval: true` on the plan tool, or an Approve /
+  Edit control).
+- **sources:** pass retrieved sources through to the message (e.g.
+  `sendSources: true`) and render them as links attached to the claims
+  they support, not a list at the bottom.
 - **accessible-stream:** wrap the message list in `role="log"` (or render it
   inside a component that does), give every icon-only button an
   `aria-label` that says what it does, replace clickable `div`s with

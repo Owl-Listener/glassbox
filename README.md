@@ -6,7 +6,7 @@ Glassbox is an agent skill that reads the code of an AI product (a chatbot, a co
 
 Each finding cites the research behind it and points to a fix.
 
-> 🚧 Early days, being built in public. See [CHECKS.md](CHECKS.md) for the eight checks planned for v0.1.
+> Early days, built in public. See [CHECKS.md](CHECKS.md) for what each of the eight checks looks for.
 
 ## Use it as a skill
 
@@ -44,7 +44,7 @@ npm run example
 
 Add `--json` for machine-readable results an agent or CI job can use.
 
-**v0.1 status:** 6 of 8 checks are built: `stop`, `gates`, `tools-visible`, `failure`, `refusal`, and `accessible-stream`.
+**v0.1 status:** all 8 checks are built: `stop`, `gates`, `tools-visible`, `plan`, `failure`, `refusal`, `sources`, and `accessible-stream`.
 
 **Tested on real apps:** see [field-tests](field-tests/) for reviews of [vercel/ai-chatbot](field-tests/vercel-ai-chatbot.md) and [miurla/morphic](field-tests/miurla-morphic.md), including what the scan missed and what reading the code caught. See [CHECKS.md](CHECKS.md) for the rest.
 
